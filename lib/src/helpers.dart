@@ -1,5 +1,10 @@
 import 'dart:math';
 
+import 'package:turf/src/geojson.dart';
+import 'package:turf/src/geojson.dart';
+
+import 'geojson.dart';
+
 enum Unit {
   meters,
   millimeters,
@@ -130,8 +135,7 @@ num convertLength(
   return radiansToLength(lengthToRadians(length, originalUnit), finalUnit);
 }
 
-num convertArea(num area,
-    [originalUnit = Unit.meters, finalUnit = Unit.kilometers]) {
+num convertArea(num area, [originalUnit = Unit.meters, finalUnit = Unit.kilometers]) {
   if (area < 0) {
     throw Exception("area must be a positive number");
   }
@@ -148,3 +152,43 @@ num convertArea(num area,
 
   return (area / startFactor) * finalFactor;
 }
+
+// Feature<Point, P> point<P = GeoJsonProperties>(
+Feature<Point> point<P>(Position? coordinates, P? properties, {Map<String, dynamic>? options}) {
+  if (null == coordinates) {
+    throw Exception("coordinates is required");
+  }
+  if (coordinates.runtimeType != List) {
+    throw Exception("coordinates must be an Array");
+  }
+  if (coordinates.length < 2) {
+    throw Exception("coordinates must be at least 2 numbers long");
+  }
+  // if (!isNumber(coordinates[0]) || !isNumber(coordinates[1])) {
+  //   throw new Exception("coordinates must contain numbers");
+  // }
+
+  final Point geom = Point(coordinates: coordinates);
+
+  return feature(geom, properties, options);
+}
+
+// feature<
+// G extends GeometryObject = Geometry,
+// P = GeoJsonProperties
+// >(
+// geom: G,
+// properties?: P,
+// options: { bbox?: BBox; id?: Id } = {}
+// ): Feature<G, P> {
+// const feat: any = { type: "Feature" };
+// if (options.id === 0 || options.id) {
+// feat.id = options.id;
+// }
+// if (options.bbox) {
+// feat.bbox = options.bbox;
+// }
+// feat.properties = properties || {};
+// feat.geometry = geom;
+// return feat;
+// }
