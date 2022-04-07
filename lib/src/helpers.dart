@@ -19,6 +19,7 @@ enum Unit {
   radians,
   degrees,
 }
+
 enum Grid {
   point,
   square,
