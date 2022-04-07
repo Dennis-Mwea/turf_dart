@@ -1,7 +1,12 @@
+import 'dart:math' as math;
+
+import 'package:turf/bearing.dart';
+import 'package:turf/destination.dart';
+import 'package:turf/distance.dart';
 import 'package:turf/helpers.dart';
 import 'package:turf/meta.dart';
 import 'package:turf/src/invariant.dart';
-import 'package:turf/src/meta/greatCircle.dart';
+import 'package:turf/src/kinks.dart';
 
 abstract class NearestPointOnLine extends Feature<Point> {
   Map<String, dynamic>? properties = {
@@ -36,8 +41,11 @@ abstract class NearestPointOnLine extends Feature<Point> {
 /// //addToMap
 /// var addToMap = [line, pt, snapped];
 /// snapped.properties['marker-color'] = '#00f';
-NearestPointOnLine nearestPointOnLine<G extends GeometryType>(Feature<G> lines, Coord type, {Map<String, dynamic>? options}) {
-  var closestPt = Position(double.infinity, double.infinity, double.infinity);
+Feature<Point> nearestPointOnLine<G extends GeometryType>(Feature<G> lines, Point pt, {Map<String, dynamic>? options}) {
+  var closestPt = Feature(
+    geometry: Point(coordinates: Position(double.infinity, double.infinity, double.infinity)),
+    properties: <String, dynamic>{},
+  );
   var length = 0.0;
 
   flattenEach(lines, (line, _, __) {
@@ -45,11 +53,47 @@ NearestPointOnLine nearestPointOnLine<G extends GeometryType>(Feature<G> lines, 
 
     for (var i = 0; i < coords.length - 1; i++) {
       //start
-      const start = point(coords[i]);
-      start.properties!.dist = distance(pt, start, options);
+      final start = Feature(geometry: Point(coordinates: Position(coords[i][0], coords[i][1])));
+      start.properties!['dist'] = distance(pt, start.geometry!);
       //stop
-      const stop = point(coords[i + 1]);
-      stop.properties!.dist = distance(pt, stop, options);
+      final stop = Feature(geometry: Point(coordinates: Position(coords[i + 1][0], coords[i + 1][1])));
+      stop.properties!['dist'] = distance(pt, stop.geometry!);
+      // sectionLength
+      final sectionLength = distance(start.geometry!, stop.geometry!);
+      //perpendicular
+      final heightDistance = math.max((start.properties!['dist'] as num), (stop.properties!['dist'] as num));
+      final direction = bearing(start.geometry!, stop.geometry!);
+      final perpendicularPt1 = destination(pt, heightDistance, direction + 90);
+      final perpendicularPt2 = destination(pt, heightDistance, direction - 90);
+      final intersect = lineIntersects(
+        Feature(geometry: LineString(coordinates: [perpendicularPt1.coordinates, perpendicularPt2.coordinates])),
+        Feature(geometry: LineString(coordinates: [start.geometry.coordinates, stop.geometry.coordinates])),
+      );
+      var intersectPt;
+      if (intersect.features.length > 0) {
+        intersectPt = intersect.features[0];
+        intersectPt.properties!.dist = distance(pt, intersectPt);
+        intersectPt.properties!.location = length + distance(start.geometry!, intersectPt);
+      }
+
+      if (start.properties!['dist'] < closestPt.properties!['dist']) {
+        closestPt = start;
+        closestPt.properties!['index'] = i;
+        closestPt.properties!['location'] = length;
+      }
+      if (stop.properties!['dist'] < closestPt.properties['dist']) {
+        closestPt = stop;
+        closestPt.properties!['index'] = i + 1;
+        closestPt.properties!['location'] = length + sectionLength;
+      }
+      if (intersectPt && intersectPt.properties!.dist < closestPt.properties!['dist']) {
+        closestPt = intersectPt;
+        closestPt.properties['index'] = i;
+      }
+      // update length
+      length += sectionLength;
     }
   });
+
+  return closestPt;
 }

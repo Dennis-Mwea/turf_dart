@@ -64,8 +64,7 @@ List<dynamic> getCoords(dynamic coords) {
     return _getCoordsForGeometry(coords);
   }
 
-  throw Exception(
-      "Parameter must be a List<dynamic>, Geometry, Feature. coords Feature, Geometry Object or a List");
+  throw Exception("Parameter must be a List<dynamic>, Geometry, Feature. coords Feature, Geometry Object or a List");
 }
 
 _getCoordsForGeometry(GeometryObject geom) {
@@ -74,4 +73,18 @@ _getCoordsForGeometry(GeometryObject geom) {
   }
 
   return (geom as GeometryType).coordinates;
+}
+
+String getType(GeoJSONObject geojson, [String? name]) {
+  if (geojson.type.runtimeType == FeatureCollection) {
+    return "FeatureCollection";
+  }
+  if (geojson.type.runtimeType == GeometryCollection) {
+    return "GeometryCollection";
+  }
+  if (geojson.type.runtimeType == Feature && (geojson as Feature).geometry != null) {
+    return geojson.geometry!.type.runtimeType.toString();
+  }
+
+  return geojson.type.runtimeType.toString();
 }
