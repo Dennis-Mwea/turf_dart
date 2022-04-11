@@ -8,6 +8,8 @@ repository: https://github.com/dartclub/turf_dart
 
 dependencies:
   json_annotation: ^4.4.0
+  sweepline_intersections:
+    path: ../sweepline_intersections/
 
 dev_dependencies:
   dartclub_lint: ^0.4.2
