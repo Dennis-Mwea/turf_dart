@@ -76,15 +76,16 @@ _getCoordsForGeometry(GeometryObject geom) {
 }
 
 String getType(GeoJSONObject geojson, [String? name]) {
-  if (geojson.type.runtimeType == FeatureCollection) {
+  if (geojson.runtimeType == FeatureCollection) {
     return "FeatureCollection";
   }
-  if (geojson.type.runtimeType == GeometryCollection) {
+  if (geojson.runtimeType == GeometryCollection) {
     return "GeometryCollection";
   }
-  if (geojson.type.runtimeType == Feature && (geojson as Feature).geometry != null) {
-    return geojson.geometry!.type.runtimeType.toString();
+  print('Geometry: ${(geojson as Feature).geometry != null}');
+  if ((geojson as Feature).geometry != null) {
+    return geojson.geometry!.runtimeType.toString();
   }
 
-  return geojson.type.runtimeType.toString();
+  return geojson.runtimeType.toString();
 }

@@ -253,6 +253,9 @@ class Position extends CoordinateType {
 
   @override
   bool operator ==(dynamic other) => other is Position ? lng == other.lng && lat == other.lat && alt == other.alt : false;
+
+  @override
+  String toString() => 'Position(lng: $lng, lat: $lat, alt: $alt)';
 }
 
 // Bounding box, as specified here https://tools.ietf.org/html/rfc7946#section-5
@@ -414,6 +417,9 @@ class Point extends GeometryType<Position> {
 
   @override
   bool operator ==(Object other) => other is Point ? coordinates == other.coordinates : false;
+
+  @override
+  String toString() => 'Point(bBox: $bbox, coordinates: $coordinates)';
 }
 
 /// MultiPoint, as specified here https://tools.ietf.org/html/rfc7946#section-3.1.3
@@ -453,6 +459,9 @@ class LineString extends GeometryType<List<Position>> {
 
   @override
   LineString clone() => LineString(coordinates: coordinates.map((e) => e.clone()).toList(), bbox: bbox?.clone());
+
+  @override
+  String toString() => 'Linestring(bbox: $bbox, coordinates: $coordinates)';
 }
 
 /// MultiLineString, as specified here https://tools.ietf.org/html/rfc7946#section-3.1.5
@@ -612,6 +621,9 @@ class Feature<T extends GeometryObject> extends GeoJSONObject {
         properties: Map.of(properties ?? {}),
         id: id,
       );
+
+  @override
+  String toString() => 'Feature(id: $id, properties: $properties, geometry: $geometry, fields: $fields)';
 }
 
 /// FeatureCollection, as specified here https://tools.ietf.org/html/rfc7946#section-3.3

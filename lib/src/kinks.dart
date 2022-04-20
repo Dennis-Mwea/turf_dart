@@ -2,21 +2,10 @@ import 'package:sweepline_intersections/sweepline_intersections.dart';
 import 'package:turf/helpers.dart';
 
 /// Takes any [LineString]/[Polygon] GeoJSON and returns the intersecting point(s).
-lineIntersects(
-  dynamic line1,
-  dynamic line2, {
-  bool removeDuplicates = true,
-  bool ignoreSelfIntersections = false,
-}) {
+lineIntersects(GeometryType line1, GeometryType line2, {bool removeDuplicates = true, bool ignoreSelfIntersections = false}) {
   List<Feature<GeometryObject>> features = [];
 
-  switch (line1.type.runtimeType) {
-    case FeatureCollection:
-      features.addAll((line1 as FeatureCollection).features);
-      break;
-    case Feature:
-      features.add(line1 as Feature);
-      break;
+  switch (line1.runtimeType) {
     case LineString:
     case Polygon:
     case MultiLineString:
@@ -25,13 +14,7 @@ lineIntersects(
       break;
   }
 
-  switch (line2.type.runtimeType) {
-    case FeatureCollection:
-      features.addAll((line2 as FeatureCollection).features);
-      break;
-    case Feature:
-      features.add(line2 as Feature);
-      break;
+  switch (line2.runtimeType) {
     case LineString:
     case Polygon:
     case MultiLineString:
@@ -43,7 +26,7 @@ lineIntersects(
   final intersections = sweeplineIntersections(FeatureCollection(features: features), ignoreSelfIntersections: ignoreSelfIntersections);
   List<Position> results = [];
   if (removeDuplicates) {
-    const Map<String, bool> unique = {};
+    final Map<String, bool> unique = {};
     intersections.forEach((intersection) {
       final key = intersection.join(",");
       if (!unique.containsKey(key)) {
@@ -55,5 +38,5 @@ lineIntersects(
     results = intersections;
   }
 
-  return FeatureCollection(features: results.map((e) => Feature(geometry: Point(coordinates: e))).toList());
+  return FeatureCollection(features: results.map((e) => Feature(geometry: Point(coordinates: e), properties: {})).toList());
 }
