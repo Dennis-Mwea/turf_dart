@@ -5,6 +5,7 @@ library turf;
 
 export 'src/bbox.dart';
 export 'src/bearing.dart';
+export 'src/bezier_spline.dart';
 export 'src/center.dart';
 export 'src/destination.dart';
 export 'src/distance.dart';
