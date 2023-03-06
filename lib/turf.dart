@@ -1,6 +1,3 @@
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
 library turf;
 
 export 'src/bbox.dart';
@@ -14,3 +11,4 @@ export 'src/helpers.dart';
 export 'src/midpoint.dart';
 export 'src/nearest_point.dart';
 export 'src/polyline.dart';
+export 'src/nearest_point_on_line.dart';
